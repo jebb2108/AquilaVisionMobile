@@ -1,0 +1,57 @@
+.alpha-track {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: $track-width;
+  background: $track-bg;
+  border-radius: 0 $radius-card $radius-card 0;
+  z-index: 4;
+  overflow: hidden;
+
+  &__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &__segment {
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    border-radius: 0 0 $radius-segment 0;
+  }
+
+  &__underlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  &__bookmark {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    z-index: 5;
+    border-radius: 0 0 $radius-segment 0;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}

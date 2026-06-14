@@ -1,0 +1,33 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #e9f0f5;
+
+  &__content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 20px 84px;
+    width: 100%;
+  }
+}
+
+.app-header {
+  background: $accent-blue;
+  color: white;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    margin: 0;
+    white-space: nowrap;
+  }
+}

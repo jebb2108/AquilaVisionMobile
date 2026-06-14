@@ -1,0 +1,85 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: $font-family;
+  background: #e9f0f5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.empty-page {
+  text-align: center;
+  color: $text-secondary;
+
+  &__icon {
+    font-size: 4rem;
+    color: $track-bg;
+    margin-bottom: 20px;
+  }
+}
+
+.history-list {
+  width: 100%;
+  max-width: 600px;
+  background: $card-bg;
+  border-radius: $radius-card;
+  box-shadow: $card-shadow;
+  padding: 20px;
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+
+  &__title {
+    font-size: $font-size-xl;
+    margin-bottom: 16px;
+    color: $text-primary;
+    text-align: center;
+  }
+
+  &__items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f7f9fc;
+    border-radius: 8px;
+    border: 1px solid $card-border;
+  }
+
+  &__name {
+    font-weight: 600;
+    color: $text-primary;
+    flex: 2;
+  }
+
+  &__eye {
+    flex: 1;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  &__type {
+    flex: 1;
+    text-align: right;
+    font-size: 0.8rem;
+    color: $accent-blue;
+    font-weight: 700;
+  }
+
+  &__empty {
+    text-align: center;
+    color: $text-muted;
+    padding: 40px;
+  }
+}
