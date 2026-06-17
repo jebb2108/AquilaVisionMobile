@@ -14,10 +14,20 @@
   }
 }
 
+.queue-fullscreen .app-layout__content {
+  padding: 8px 12px;
+}
+
+.queue-fullscreen .app-header,
+.queue-fullscreen .bottom-nav {
+  display: none;
+}
+
 .app-header {
   background: $accent-blue;
   color: white;
-  padding: 14px 20px;
+  height: 64px;
+  padding: 0 20px;
   display: flex;
   justify-content: center;
   align-items: center;

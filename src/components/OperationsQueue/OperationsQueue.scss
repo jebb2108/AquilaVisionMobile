@@ -4,13 +4,21 @@
   padding: 20px 0 4px;
 }
 
+.queue-fullscreen .queue-container {
+  padding: 4px 0;
+}
+
+.queue-fullscreen .word-card {
+  min-height: 446px;
+}
+
 .word-card {
   position: relative;
   background: $card-bg;
   border-radius: $radius-card;
   box-shadow: $card-shadow;
   border: 1px solid $card-border;
-  min-height: 500px;
+  min-height: 405px;
   width: 100%;
   padding: 20px 52px 16px 20px;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -61,6 +69,61 @@
     margin-bottom: 4px;
   }
 
+  &__input,
+  &__select,
+  &__textarea {
+    border: 1px solid $card-border;
+    border-radius: 6px;
+    background: #fff;
+    color: $text-primary;
+    font-family: $font-family;
+    font-size: $font-size-regular;
+    padding: 6px 8px;
+    min-width: 0;
+
+    &:focus {
+      outline: 1px solid rgba($accent-blue, 0.35);
+      border-color: $accent-blue;
+    }
+  }
+
+  &__input {
+    width: 100%;
+
+    &--name {
+      text-align: center;
+      font-size: $font-size-xl;
+      font-weight: 700;
+    }
+
+    &--center {
+      text-align: center;
+      font-size: $font-size-large;
+      font-weight: 600;
+      color: $accent-blue;
+      margin-top: 4px;
+    }
+
+    &--inline {
+      width: 70px;
+      margin-left: 8px;
+      text-align: center;
+      font-weight: 600;
+      color: $accent-blue;
+    }
+  }
+
+  &__select {
+    width: 100%;
+  }
+
+  &__textarea {
+    width: 100%;
+    min-height: 74px;
+    resize: vertical;
+    line-height: 1.4;
+  }
+
   &__patient-info {
     display: flex;
     align-items: center;
@@ -75,6 +138,30 @@
     line-height: 1;
     text-align: center;
     flex-shrink: 0;
+  }
+
+  &__eye-stepper {
+    position: relative;
+    width: 86px;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__eye-stepper-value {
+    color: rgba($accent-blue, 0.5);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    transform: translateX(-8px);
+  }
+
+  &__eye-stepper .word-card__stepper-btn {
+    position: absolute;
+    right: -12px;
   }
 
   &__details {
@@ -92,6 +179,7 @@
   &__detail-label {
     color: $text-secondary;
     font-size: $font-size-regular;
+    white-space: nowrap;
   }
 
   &__detail-value {
@@ -124,6 +212,50 @@
     font-size: $font-size-large;
     font-weight: 600;
     color: $accent-blue;
+  }
+
+  &__stepper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+    min-height: 34px;
+  }
+
+  &__stepper-value {
+    color: $accent-blue;
+    font-size: $font-size-large;
+    font-weight: 600;
+    line-height: 34px;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  &__stepper-btn {
+    width: 28px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: $accent-blue;
+    cursor: pointer;
+    transition: transform 0.16s ease, color 0.16s ease;
+
+    &:active,
+    &--nudged {
+      transform: rotate(18deg);
+      color: #15324d;
+    }
+  }
+
+  &__stepper > &__stepper-btn {
+    position: absolute;
+    right: 10px;
   }
 
   &__operation-count {
@@ -170,6 +302,17 @@
       color: $accent-red;
       background: rgba($accent-red, 0.08);
     }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+  }
+
+  &__action-btn:disabled:active {
+    border-color: $card-border;
+    color: $text-secondary;
+    background: transparent;
   }
 
   &__bottom {
@@ -210,7 +353,38 @@
     border-top: 1px solid $card-border;
   }
 
+  &__fullscreen-btn {
+    position: fixed;
+    top: 78px;
+    right: max(12px, calc((100vw - 486px) / 4));
+    z-index: 1001;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba($accent-blue, 0.7);
+    cursor: pointer;
+    font-size: 1rem;
+
+    &:active {
+      color: $accent-blue;
+      transform: scale(0.96);
+    }
+  }
+
+  .queue-fullscreen &__fullscreen-btn {
+    top: 12px;
+    right: max(12px, calc((100vw - 535px) / 4));
+  }
+
   &__start-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     padding: 12px 24px;
     background: $accent-blue;
     color: white;
@@ -222,12 +396,41 @@
     cursor: pointer;
     transition: background 0.2s;
 
-    &:hover {
-      background: #15324d; 
+    &:not(:disabled):hover {
+      background: #15324d;
     }
-    &:active {
-      background: #15324d; 
+    &:not(:disabled):active {
+      background: #15324d;
     }
+
+    &:disabled {
+      background: #9aa9b6;
+      cursor: default;
+    }
+
+    &--started,
+    &--started:disabled {
+      background: #d8e7f2;
+      color: #15324d;
+      opacity: 1;
+    }
+
+    &--started::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: #8fb4cf;
+      transform: scaleX(0);
+      transform-origin: left center;
+      animation: operationStartFill 60s linear forwards;
+      animation-delay: var(--start-fill-delay, 0ms);
+    }
+  }
+
+  &__start-btn-label {
+    position: relative;
+    z-index: 1;
   }
 
   &__nav-btn {
@@ -255,6 +458,93 @@
   }
 }
 
+.operation-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 43, 60, 0.3);
+  padding: 20px;
+
+  &__window {
+    width: 100%;
+    max-width: 360px;
+    background: $card-bg;
+    border: 1px solid $card-border;
+    border-radius: $radius-card;
+    box-shadow: $card-shadow;
+    padding: 20px;
+  }
+
+  &__title {
+    color: $text-primary;
+    font-size: $font-size-large;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  &__input {
+    width: 100%;
+    border: 1px solid $card-border;
+    border-radius: 8px;
+    font-family: $font-family;
+    font-size: 1rem;
+    color: $text-primary;
+    padding: 10px 12px;
+
+    &:focus {
+      outline: 1px solid rgba($accent-blue, 0.35);
+      border-color: $accent-blue;
+    }
+  }
+
+  &__error {
+    color: $accent-red;
+    font-size: $font-size-label;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-size-regular;
+    line-height: 1.4;
+    margin: 0;
+    text-align: center;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  &__btn {
+    flex: 1;
+    border: none;
+    border-radius: $radius-button;
+    background: $accent-blue;
+    color: #fff;
+    cursor: pointer;
+    font-family: $font-family;
+    font-size: $font-size-regular;
+    font-weight: 600;
+    padding: 10px;
+
+    &--ghost {
+      background: transparent;
+      color: $text-secondary;
+      border: 1px solid $card-border;
+    }
+
+    &--danger {
+      background: $accent-red;
+    }
+  }
+}
+
 // Состояния загрузки и пустоты
 .loading-overlay {
   display: flex;
@@ -274,6 +564,11 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes operationStartFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 .empty-state {

@@ -6,7 +6,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "./src/styles/variables";`, // Автоматический импорт переменных
+        additionalData: `@use './src/styles/variables' as *;\n` // Автоматический импорт переменных
       },
     },
   },

@@ -1,0 +1,173 @@
+.patient-list {
+  width: 100%;
+  max-width: 600px;
+  background: $card-bg;
+  border-radius: $radius-card;
+  box-shadow: $card-shadow;
+  padding: 20px;
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    font-size: $font-size-xl;
+    margin-right: auto;
+    color: $text-primary;
+  }
+
+  &__import-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid $card-border;
+    border-radius: 8px;
+    color: $accent-blue;
+    cursor: pointer;
+
+    &:active {
+      background: rgba($accent-blue, 0.08);
+      border-color: $accent-blue;
+    }
+  }
+
+  &__file {
+    display: none;
+  }
+
+  &__items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 22px 44px minmax(0, 1fr) 36px 38px minmax(70px, auto);
+    gap: 8px;
+    align-items: center;
+    padding: 12px;
+    background: #f7f9fc;
+    border-radius: 8px;
+    border: 1px solid $card-border;
+    color: $text-primary;
+
+    &--started,
+    &--deleted {
+      color: $text-muted;
+      background: #eef1f4;
+    }
+
+    &--deleted::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 2px;
+      background: rgba(26, 43, 60, 0.42);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    &--dragging {
+      border-color: $accent-blue;
+      box-shadow: 0 4px 12px rgba(44, 95, 138, 0.16);
+    }
+  }
+
+  &__drag-handle {
+    width: 22px;
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: grab;
+    touch-action: none;
+
+    span {
+      width: 16px;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+      opacity: 0.45;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.28;
+    }
+  }
+
+  &__start,
+  &__age,
+  &__eye,
+  &__type {
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  &__name {
+    font-weight: 600;
+    color: $text-primary;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__start {
+    color: $text-secondary;
+  }
+
+  &__age,
+  &__eye {
+    color: $text-secondary;
+    text-align: center;
+  }
+
+  &__type {
+    color: $accent-blue;
+    text-align: right;
+  }
+
+  &__item--started &__name,
+  &__item--deleted &__name,
+  &__item--started &__start,
+  &__item--deleted &__start,
+  &__item--started &__age,
+  &__item--deleted &__age,
+  &__item--started &__eye,
+  &__item--deleted &__eye,
+  &__item--started &__type,
+  &__item--deleted &__type {
+    color: inherit;
+  }
+
+  &__empty {
+    text-align: center;
+    color: $text-muted;
+    padding: 40px;
+  }
+}

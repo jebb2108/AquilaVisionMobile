@@ -12,9 +12,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
   width: 100%;
-  max-width: 600px;
 }

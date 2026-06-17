@@ -25,7 +25,7 @@ body {
 
 .history-list {
   width: 100%;
-  max-width: 600px;
+  max-width: 486px;
   background: $card-bg;
   border-radius: $radius-card;
   box-shadow: $card-shadow;
@@ -82,4 +82,13 @@ body {
     color: $text-muted;
     padding: 40px;
   }
+}
+
+.home-page {
+  width: 100%;
+  max-width: 486px;
+}
+
+.queue-fullscreen .home-page {
+  max-width: 535px;
 }

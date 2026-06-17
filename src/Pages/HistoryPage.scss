@@ -1,0 +1,63 @@
+.history-days {
+  width: 100%;
+  max-width: 600px;
+  background: $card-bg;
+  border-radius: $radius-card;
+  box-shadow: $card-shadow;
+  padding: 20px;
+
+  &__title {
+    font-size: $font-size-xl;
+    margin-bottom: 16px;
+    color: $text-primary;
+    text-align: center;
+  }
+
+  &__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background: #f7f9fc;
+    border-radius: 8px;
+    border: 1px solid $card-border;
+  }
+
+  &__date {
+    font-weight: 700;
+    color: $accent-blue;
+    margin-right: auto;
+  }
+
+  &__count {
+    color: $text-secondary;
+    margin-right: 16px;
+    font-size: 0.9rem;
+  }
+
+  &__download-btn {
+    background: transparent;
+    border: 1px solid $accent-blue;
+    color: $accent-blue;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba($accent-blue, 0.1);
+    }
+  }
+
+  &__empty {
+    text-align: center;
+    color: $text-muted;
+    padding: 40px;
+  }
+}
