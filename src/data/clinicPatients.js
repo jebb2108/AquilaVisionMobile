@@ -1,71 +1,56 @@
-const SOURCE_LIST_KEYS = [
-  'patients',
-  'operations',
-  'data',
-  'items',
-  'list',
-  'queue',
-  'surgeryList',
+import { formatPhoneNumber } from '../domain/patient/phoneMask';
+
+export const OPERATION_TYPES = [
+  { value: 'femto', label: 'FEMTO' },
+  { value: 'frk', label: 'FRK' },
+  { value: 'ptk', label: 'PTK' },
 ];
 
-const asString = (value) => {
+export const EYE_VALUES = ['OU', 'OD', 'OS'];
+
+export const GENDER_VALUES = [
+  { value: 'male', label: 'М', name: 'Мужчина' },
+  { value: 'female', label: 'Ж', name: 'Женщина' },
+];
+
+const CANONICAL_PATIENT_DEFAULTS = {
+  id: '',
+  type: 'femto',
+  operationTitle: '',
+  operationStart: '',
+  patientName: '',
+  eye: 'OU',
+  gender: '',
+  birthDate: '',
+  phone: '',
+  cardNumber: '',
+  flapThickness: 100,
+  ringDiameter: 8.5,
+  operationCount: 1,
+  specialNotes: '',
+  isDeleted: false,
+  isStarted: false,
+  startedAt: 0,
+  actualStartDate: '',
+  actualStartTime: '',
+  operationVisibleUntil: 0,
+};
+
+const CANONICAL_LIST_KEYS = ['patients'];
+
+const toStringValue = (value) => {
   if (value === null || value === undefined) return '';
-  return String(value).trim();
+  return String(value);
 };
 
-const isObject = (value) =>
-  value !== null && typeof value === 'object' && !Array.isArray(value);
-
-const firstValue = (source, keys) => {
-  for (const key of keys) {
-    if (
-      source[key] !== null &&
-      source[key] !== undefined &&
-      source[key] !== '' &&
-      !isObject(source[key])
-    ) {
-      return source[key];
-    }
-  }
-  return '';
-};
-
-const getPatientName = (source) => {
-  const directName = firstValue(source, [
-    'patientName',
-    'fullName',
-    'fio',
-    'name',
-  ]);
-
-  if (directName) return asString(directName);
-
-  return [
-    firstValue(source, ['lastName', 'surname']),
-    firstValue(source, ['firstName']),
-    firstValue(source, ['middleName', 'patronymic']),
-  ]
-    .map(asString)
-    .filter(Boolean)
-    .join(' ');
-};
-
-export const getOperationTitle = (operation) => {
-  const title = firstValue(operation, [
-    'operationTitle',
-    'operationName',
-    'surgeryName',
-    'procedureName',
-  ]);
-
-  if (title) return asString(title);
-  if (operation.type === 'femto') return 'FEMTO';
-  if (operation.type === 'ptk' || operation.type === 'frk') return 'PTK/FRK';
-  return asString(operation.type).toUpperCase();
+const toNumberValue = (value, fallback) => {
+  if (value === '' || value === null || value === undefined) return fallback;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
 };
 
 export const calculateFullYears = (birthDate) => {
-  const value = asString(birthDate);
+  const value = toStringValue(birthDate).trim();
   if (!value) return '';
 
   const parts = value.includes('.')
@@ -89,117 +74,52 @@ export const calculateFullYears = (birthDate) => {
   return age;
 };
 
-const normalizeEye = (value) => {
-  const eye = asString(value).toUpperCase();
-  if (eye === 'RIGHT') return 'OD';
-  if (eye === 'LEFT') return 'OS';
-  if (eye === 'BOTH') return 'OU';
-  if (['OU', 'OD', 'OS'].includes(eye)) return eye;
-  return eye || 'OU';
-};
-
-const normalizeType = (value) => {
-  const type = asString(value).toLowerCase();
-  if (type.includes('femto') || type.includes('lasik')) return 'femto';
-  if (type.includes('ptk')) return 'ptk';
-  if (type.includes('frk') || type.includes('prk')) return 'frk';
-  return type || 'femto';
-};
-
-const normalizeBoolean = (value) => {
-  if (typeof value === 'boolean') return value;
-
-  const normalized = asString(value).toLowerCase();
-
-  if (['true', '1', 'yes', 'да'].includes(normalized)) return true;
-  if (['false', '0', 'no', 'нет', ''].includes(normalized)) return false;
-  return Boolean(value);
-};
-
-const normalizeNumber = (value, fallback = '') => {
-  const number = Number.parseFloat(value);
-  return Number.isNaN(number) ? fallback : number;
-};
-
-const flattenOperation = (source) => ({
-  ...(isObject(source.patient) ? source.patient : {}),
-  ...(isObject(source.operation) ? source.operation : {}),
-  ...(isObject(source.surgery) ? source.surgery : {}),
-  ...(isObject(source.procedure) ? source.procedure : {}),
-  ...source,
-});
-
-const normalizeOperation = (rawSource, index) => {
-  const source = flattenOperation(rawSource);
-  const birthDate = firstValue(source, [
-    'birthDate',
-    'birth_date',
-    'birthday',
-    'dateOfBirth',
-  ]);
-  const age = firstValue(source, ['age', 'fullYears', 'years']);
-  const typeSource = firstValue(source, [
-    'type',
-    'operationType',
-    'operationTitle',
-    'operationName',
-    'surgeryType',
-    'surgeryName',
-    'procedureName',
-  ]);
-
-  return {
-    id: firstValue(source, ['id', 'operationId', 'patientId', 'uuid']) || `clinic-${index}`,
-    type: normalizeType(typeSource),
-    operationTitle: asString(firstValue(source, [
-      'operationTitle',
-      'operationName',
-      'surgeryName',
-      'procedureName',
-    ])),
-    operationStart: asString(firstValue(source, [
-      'operationStart',
-      'start',
-      'startTime',
-      'time',
-      'surgeryStart',
-      'beginAt',
-    ])),
-    patientName: getPatientName(source),
-    eye: normalizeEye(firstValue(source, ['eye', 'eyes', 'operationEye'])),
-    age: age === '' ? calculateFullYears(birthDate) : normalizeNumber(age),
-    birthDate: asString(birthDate),
-    phone: asString(firstValue(source, ['phone', 'phoneNumber', 'mobile'])),
-    cardNumber: asString(firstValue(source, [
-      'cardNumber',
-      'medicalCardNumber',
-      'medicalRecordNumber',
-      'recordNumber',
-      'card',
-    ])),
-    flapThickness: normalizeNumber(firstValue(source, ['flapThickness', 'flap', 'flapMicrons']), 100),
-    ringDiameter: normalizeNumber(firstValue(source, ['ringDiameter', 'ring', 'ringMm']), 8.5),
-    operationCount: normalizeNumber(firstValue(source, ['operationCount', 'operationsCount', 'surgeryCount']), 1),
-    specialNotes: asString(firstValue(source, ['specialNotes', 'notes', 'comment'])),
-    isDeleted: normalizeBoolean(firstValue(source, ['isDeleted', 'deleted'])),
-    isStarted: normalizeBoolean(firstValue(source, ['isStarted', 'started', 'operationStarted'])),
-  };
-};
-
-const extractOperations = (payload) => {
+const extractCanonicalPatients = (payload) => {
   if (Array.isArray(payload)) return payload;
 
-  for (const key of SOURCE_LIST_KEYS) {
-    const value = payload?.[key];
-    if (Array.isArray(value)) return value;
-    if (value && typeof value === 'object') {
-      const nested = extractOperations(value);
-      if (nested.length > 0) return nested;
-    }
+  for (const key of CANONICAL_LIST_KEYS) {
+    if (Array.isArray(payload?.[key])) return payload[key];
   }
 
   return [];
 };
 
-export const normalizeClinicPatients = (payload) =>
-  extractOperations(payload).map(normalizeOperation);
+export const createCanonicalPatient = (patient = {}, fallbackId = `patient-${Date.now()}`) => {
+  const birthDate = toStringValue(patient.birthDate).trim();
+  const type = toStringValue(patient.type || CANONICAL_PATIENT_DEFAULTS.type).trim();
+  const age = patient.age === '' || patient.age === undefined || patient.age === null
+    ? calculateFullYears(birthDate)
+    : toNumberValue(patient.age, '');
+
+  return {
+    ...CANONICAL_PATIENT_DEFAULTS,
+    id: toStringValue(patient.id || fallbackId).trim(),
+    type,
+    operationTitle: toStringValue(patient.operationTitle).trim(),
+    operationStart: toStringValue(patient.operationStart).trim(),
+    patientName: toStringValue(patient.patientName).trim(),
+    eye: toStringValue(patient.eye || CANONICAL_PATIENT_DEFAULTS.eye).trim(),
+    age,
+    gender: toStringValue(patient.gender).trim(),
+    birthDate,
+    phone: formatPhoneNumber(patient.phone),
+    cardNumber: toStringValue(patient.cardNumber).trim(),
+    flapThickness: toNumberValue(patient.flapThickness, CANONICAL_PATIENT_DEFAULTS.flapThickness),
+    ringDiameter: toNumberValue(patient.ringDiameter, CANONICAL_PATIENT_DEFAULTS.ringDiameter),
+    operationCount: type === 'frk'
+      ? 1
+      : toNumberValue(patient.operationCount, CANONICAL_PATIENT_DEFAULTS.operationCount),
+    specialNotes: toStringValue(patient.specialNotes).trim(),
+    isDeleted: Boolean(patient.isDeleted),
+    isStarted: Boolean(patient.isStarted),
+    startedAt: toNumberValue(patient.startedAt, 0),
+    actualStartDate: toStringValue(patient.actualStartDate).trim(),
+    actualStartTime: toStringValue(patient.actualStartTime).trim(),
+    operationVisibleUntil: toNumberValue(patient.operationVisibleUntil, 0),
+  };
+};
+
+export const readCanonicalPatients = (payload) =>
+  extractCanonicalPatients(payload).map((patient, index) =>
+    createCanonicalPatient(patient, `patient-${Date.now()}-${index}`)
+  );

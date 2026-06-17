@@ -6,6 +6,7 @@ export default function HomePage({
   onDelete,
   onUpdate,
   onStart,
+  onOperationElapsed,
   showNotification,
 }) {
   return (
@@ -15,6 +16,7 @@ export default function HomePage({
         onDelete={onDelete}
         onUpdate={onUpdate}
         onStart={onStart}
+        onOperationElapsed={onOperationElapsed}
         showNotification={showNotification}
       />
     </div>

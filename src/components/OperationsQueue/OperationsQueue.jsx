@@ -1,16 +1,29 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AlphaBookmark from '../AlphaBookmark/AlphaBookmark';
+import { OperationCard } from '../../features/operationsQueue/OperationCard';
+import {
+  DeleteOperationModal,
+  StartOperationModal,
+} from '../../features/operationsQueue/OperationModals';
+import {
+  EYE_VALUES,
+  FLAP_THICKNESS_VALUES,
+  RING_DIAMETER_VALUES,
+} from '../../features/operationsQueue/operationValues';
 import './OperationsQueue.scss';
 
-const EYE_VALUES = ['OU', 'OD', 'OS'];
-const FLAP_THICKNESS_VALUES = [90, 100, 110, 120, 130];
-const RING_DIAMETER_VALUES = [8.5, 9.0, 9.5];
+const DRAFT_VALUE_SETS = {
+  eye: EYE_VALUES,
+  flapThickness: FLAP_THICKNESS_VALUES,
+  ringDiameter: RING_DIAMETER_VALUES,
+};
 
 export default function OperationsQueue({
   operations = [],
   onDelete,
   onUpdate,
   onStart,
+  onOperationElapsed,
   showNotification,
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -21,10 +34,10 @@ export default function OperationsQueue({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [nudgedParam, setNudgedParam] = useState('');
-  const pendingFocusId = useRef(null);
-  const nudgeTimeoutId = useRef(null);
   const [cardNumber, setCardNumber] = useState('');
   const [cardNumberError, setCardNumberError] = useState('');
+  const pendingFocusId = useRef(null);
+  const nudgeTimeoutId = useRef(null);
 
   useEffect(() => {
     if (currentIndex > operations.length - 1) {
@@ -59,17 +72,15 @@ export default function OperationsQueue({
     document.body.classList.remove('queue-fullscreen');
   }, []);
 
-  // Мгновенное переключение (для ползунка)
-  const jumpToIndex = useCallback((i) => {
-    setCurrentIndex(i);
+  const jumpToIndex = useCallback((index) => {
+    setCurrentIndex(index);
   }, []);
 
-  // Анимированное переключение (для кнопок)
-  const animateToIndex = useCallback((i) => {
-    if (fadeOut) return; // предотвращаем двойное срабатывание
+  const animateToIndex = useCallback((index) => {
+    if (fadeOut) return;
     setFadeOut(true);
     setTimeout(() => {
-      setCurrentIndex(i);
+      setCurrentIndex(index);
       setFadeOut(false);
     }, 200);
   }, [fadeOut]);
@@ -77,12 +88,14 @@ export default function OperationsQueue({
   const nextOperation = () => {
     if (currentIndex < operations.length - 1) animateToIndex(currentIndex + 1);
   };
+
   const prevOperation = () => {
     if (currentIndex > 0) animateToIndex(currentIndex - 1);
   };
 
   const op = operations[currentIndex];
   const isFemto = op?.type === 'femto';
+  const isFrk = op?.type === 'frk';
   const startedAt = Number(op?.startedAt) || Date.now();
   const startFillElapsed = op?.isStarted
     ? Math.min(60 * 1000, Math.max(0, Date.now() - startedAt))
@@ -103,10 +116,9 @@ export default function OperationsQueue({
   const saveAllEdits = () => {
     onUpdate(op.id, {
       ...draft,
-      age: draft.age === '' ? '' : Number(draft.age),
       flapThickness: Number(draft.flapThickness),
       ringDiameter: Number(draft.ringDiameter),
-      operationCount: Number(draft.operationCount),
+      operationCount: isFrk ? 1 : Number(draft.operationCount),
     });
     showNotification('Изменения сохранены', 'success');
     exitEditMode();
@@ -134,15 +146,18 @@ export default function OperationsQueue({
     setDraft(prev => ({ ...prev, [field]: value }));
   };
 
-  const cycleDraftValue = (field, values) => {
+  const cycleDraftValue = (field) => {
+    const values = DRAFT_VALUE_SETS[field];
+    if (!values) return;
+
     setDraft(prev => {
       const isNumericValues = values.every(value => typeof value === 'number');
-      const currentIndex = values.findIndex(value => (
+      const valueIndex = values.findIndex(value => (
         isNumericValues
           ? Number(value) === Number(prev[field])
           : String(value) === String(prev[field])
       ));
-      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % values.length;
+      const nextIndex = valueIndex === -1 ? 0 : (valueIndex + 1) % values.length;
 
       return {
         ...prev,
@@ -161,7 +176,7 @@ export default function OperationsQueue({
     if (op.isStarted) return;
 
     if (!op.cardNumber) {
-      showNotification('Номер карты не найден', 'error');
+      showNotification('№ не найден', 'error');
       return;
     }
 
@@ -178,7 +193,7 @@ export default function OperationsQueue({
 
   const confirmStartOperation = () => {
     if (cardNumber.trim() !== String(op.cardNumber).trim()) {
-      setCardNumberError('Номер карты не совпадает');
+      setCardNumberError('№ не совпадает');
       return;
     }
 
@@ -187,6 +202,16 @@ export default function OperationsQueue({
     onStart(op.id);
     showNotification('Операция началась', 'success');
     closeStartModal();
+  };
+
+  const changeCardNumber = (value) => {
+    setCardNumber(value);
+    setCardNumberError('');
+  };
+
+  const handleStartProgressEnd = () => {
+    if (!op?.isStarted) return;
+    onOperationElapsed?.(op.id);
   };
 
   if (operations.length === 0) {
@@ -209,249 +234,52 @@ export default function OperationsQueue({
       >
         <i className={`fa-solid ${isFullscreen ? 'fa-compress' : 'fa-expand'}`}></i>
       </button>
-      <div className={`word-card ${fadeOut ? 'fade-out' : 'fade-in'}`}>
-        <div className="word-card__content">
-          {isCardEditMode ? (
-            <input
-              className="word-card__patient-name word-card__input word-card__input--name"
-              value={draft.patientName}
-              onChange={(e) => updateDraft('patientName', e.target.value)}
-            />
-          ) : (
-            <div className="word-card__patient-name">{op.patientName}</div>
-          )}
 
-          <div className="word-card__patient-info">
-            {isCardEditMode ? (
-              <div className="word-card__eye-stepper">
-                <span className="word-card__eye-stepper-value">{draft.eye}</span>
-                <button
-                  className={[
-                    'word-card__stepper-btn',
-                    nudgedParam === 'eye' ? 'word-card__stepper-btn--nudged' : '',
-                  ].filter(Boolean).join(' ')}
-                  type="button"
-                  onClick={() => cycleDraftValue('eye', EYE_VALUES)}
-                  aria-label="Следующий глаз"
-                >
-                  <i className="fa-solid fa-chevron-right"></i>
-                </button>
-              </div>
-            ) : (
-              <span className="word-card__eye-badge">{op.eye}</span>
-            )}
-            <div className="word-card__details">
-              <div className="word-card__detail-row">
-                <span className="word-card__detail-label">Дата рождения:</span>
-                {isCardEditMode ? (
-                  <input
-                    className="word-card__input"
-                    value={draft.birthDate}
-                    onChange={(e) => updateDraft('birthDate', e.target.value)}
-                  />
-                ) : (
-                  <span className="word-card__detail-value">{op.birthDate}</span>
-                )}
-              </div>
-              <div className="word-card__detail-row">
-                <span className="word-card__detail-label">Номер тел.:</span>
-                {isCardEditMode ? (
-                  <input
-                    className="word-card__input"
-                    value={draft.phone}
-                    onChange={(e) => updateDraft('phone', e.target.value)}
-                  />
-                ) : (
-                  <span className="word-card__detail-value">{op.phone}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {isFemto ? (
-            <div className="word-card__params">
-              <div className="word-card__param">
-                <div className="word-card__param-label">Толщина лоскута</div>
-                {isCardEditMode ? (
-                  <div className="word-card__stepper">
-                    <span className="word-card__stepper-value">{draft.flapThickness} мкм</span>
-                    <button
-                      className={[
-                        'word-card__stepper-btn',
-                        nudgedParam === 'flapThickness' ? 'word-card__stepper-btn--nudged' : '',
-                      ].filter(Boolean).join(' ')}
-                      type="button"
-                      onClick={() => cycleDraftValue('flapThickness', FLAP_THICKNESS_VALUES)}
-                      aria-label="Следующая толщина лоскута"
-                    >
-                      <i className="fa-solid fa-chevron-right"></i>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="word-card__param-value">{op.flapThickness} мкм</div>
-                )}
-              </div>
-              <div className="word-card__param">
-                <div className="word-card__param-label">Диаметр кольца</div>
-                {isCardEditMode ? (
-                  <div className="word-card__stepper">
-                    <span className="word-card__stepper-value">{Number(draft.ringDiameter).toFixed(1)} мм</span>
-                    <button
-                      className={[
-                        'word-card__stepper-btn',
-                        nudgedParam === 'ringDiameter' ? 'word-card__stepper-btn--nudged' : '',
-                      ].filter(Boolean).join(' ')}
-                      type="button"
-                      onClick={() => cycleDraftValue('ringDiameter', RING_DIAMETER_VALUES)}
-                      aria-label="Следующий диаметр кольца"
-                    >
-                      <i className="fa-solid fa-chevron-right"></i>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="word-card__param-value">{Number(op.ringDiameter).toFixed(1)} мм</div>
-                )}
-              </div>
-            </div>
-          ) : (
-            (isCardEditMode || op.operationCount !== 1) && (
-              <div className="word-card__operation-count">
-                {isCardEditMode ? (
-                  <>
-                    Количество операций:
-                    <input
-                      className="word-card__input word-card__input--inline"
-                      inputMode="numeric"
-                      value={draft.operationCount}
-                      onChange={(e) => updateDraft('operationCount', e.target.value)}
-                    />
-                  </>
-                ) : (
-                  <>Количество операций: {op.operationCount}</>
-                )}
-              </div>
-            )
-          )}
-
-          <div className="word-card__actions">
-            <button
-              className="word-card__action-btn word-card__action-btn--edit"
-              onClick={() => isCardEditMode ? saveAllEdits() : enterEditMode()}
-              disabled={op.isStarted}
-            >
-              {isCardEditMode ? 'Применить' : 'Изменить'}
-            </button>
-            <button
-              className="word-card__action-btn word-card__action-btn--delete"
-              onClick={() => isCardEditMode ? exitEditMode() : openDeleteModal()}
-              disabled={op.isStarted}
-            >
-              {isCardEditMode ? 'Отменить' : 'Удалить'}
-            </button>
-          </div>
-
-          <div className="word-card__bottom">
-            {isCardEditMode ? (
-              <div className="word-card__special-notes">
-                <h4>Особенности операции</h4>
-                <textarea
-                  className="word-card__textarea"
-                  value={draft.specialNotes}
-                  onChange={(e) => updateDraft('specialNotes', e.target.value)}
-                />
-              </div>
-            ) : op.specialNotes && (
-              <div className="word-card__special-notes">
-                <h4>Особенности операции</h4>
-                <p>{op.specialNotes}</p>
-              </div>
-            )}
-            <div className="word-card__footer">
-              <button className="word-card__nav-btn" onClick={prevOperation} disabled={currentIndex === 0}>
-                <i className="fa-solid fa-angle-left"></i>
-              </button>
-              <button
-                className={[
-                  'word-card__start-btn',
-                  op.isStarted ? 'word-card__start-btn--started' : '',
-                ].filter(Boolean).join(' ')}
-                style={op.isStarted ? { '--start-fill-delay': `-${startFillElapsed}ms` } : undefined}
-                onClick={openStartModal}
-                disabled={op.isStarted}
-              >
-                <span className="word-card__start-btn-label">
-                  {op.isStarted ? 'Операция начата' : 'Начать операцию'}
-                </span>
-              </button>
-              <button className="word-card__nav-btn" onClick={nextOperation} disabled={currentIndex >= operations.length - 1}>
-                <i className="fa-solid fa-angle-right"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
+      <OperationCard
+        currentIndex={currentIndex}
+        draft={draft}
+        fadeOut={fadeOut}
+        isCardEditMode={isCardEditMode}
+        isFemto={isFemto}
+        isFrk={isFrk}
+        nudgedParam={nudgedParam}
+        op={op}
+        operationsLength={operations.length}
+        startFillElapsed={startFillElapsed}
+        onCycleDraftValue={cycleDraftValue}
+        onEnterEditMode={enterEditMode}
+        onExitEditMode={exitEditMode}
+        onOpenDeleteModal={openDeleteModal}
+        onOpenStartModal={openStartModal}
+        onPrevOperation={prevOperation}
+        onNextOperation={nextOperation}
+        onSaveAllEdits={saveAllEdits}
+        onStartProgressEnd={handleStartProgressEnd}
+        onUpdateDraft={updateDraft}
+      >
         <AlphaBookmark
           operations={operations}
           currentIndex={currentIndex}
           onJump={jumpToIndex}
         />
-      </div>
+      </OperationCard>
 
       {isDeleteModalOpen && (
-        <div className="operation-modal">
-          <div className="operation-modal__window">
-            <h3 className="operation-modal__title">Удалить пациента?</h3>
-            <p className="operation-modal__text">{op.patientName}</p>
-            <div className="operation-modal__actions">
-              <button
-                className="operation-modal__btn operation-modal__btn--ghost"
-                onClick={closeDeleteModal}
-              >
-                Отмена
-              </button>
-              <button
-                className="operation-modal__btn operation-modal__btn--danger"
-                onClick={confirmDeleteOperation}
-              >
-                Удалить
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteOperationModal
+          patientName={op.patientName}
+          onCancel={closeDeleteModal}
+          onConfirm={confirmDeleteOperation}
+        />
       )}
 
       {isStartModalOpen && (
-        <div className="operation-modal">
-          <div className="operation-modal__window">
-            <h3 className="operation-modal__title">Подтвердите номер карты</h3>
-            <input
-              className="operation-modal__input"
-              value={cardNumber}
-              onChange={(e) => {
-                setCardNumber(e.target.value);
-                setCardNumberError('');
-              }}
-              autoFocus
-            />
-            {cardNumberError && (
-              <div className="operation-modal__error">{cardNumberError}</div>
-            )}
-            <div className="operation-modal__actions">
-              <button
-                className="operation-modal__btn operation-modal__btn--ghost"
-                onClick={closeStartModal}
-              >
-                Отмена
-              </button>
-              <button
-                className="operation-modal__btn"
-                onClick={confirmStartOperation}
-              >
-                Начать
-              </button>
-            </div>
-          </div>
-        </div>
+        <StartOperationModal
+          cardNumber={cardNumber}
+          error={cardNumberError}
+          onCancel={closeStartModal}
+          onChangeCardNumber={changeCardNumber}
+          onConfirm={confirmStartOperation}
+        />
       )}
     </div>
   );

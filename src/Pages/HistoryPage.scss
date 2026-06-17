@@ -6,6 +6,14 @@
   box-shadow: $card-shadow;
   padding: 20px;
 
+  &--empty {
+    max-width: none;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
   &__title {
     font-size: $font-size-xl;
     margin-bottom: 16px;
@@ -55,9 +63,17 @@
     }
   }
 
-  &__empty {
-    text-align: center;
-    color: $text-muted;
-    padding: 40px;
+  &__empty-state {
+    h3 {
+      color: $text-primary;
+      font-size: $font-size-large;
+      margin-bottom: 6px;
+    }
+
+    p {
+      color: $text-secondary;
+      font-size: $font-size-regular;
+      margin: 0;
+    }
   }
 }

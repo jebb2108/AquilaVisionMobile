@@ -415,17 +415,17 @@
       opacity: 1;
     }
 
-    &--started::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background: #8fb4cf;
-      transform: scaleX(0);
-      transform-origin: left center;
-      animation: operationStartFill 60s linear forwards;
-      animation-delay: var(--start-fill-delay, 0ms);
-    }
+  }
+
+  &__start-btn-progress {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: #8fb4cf;
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: operationStartFill 60s linear forwards;
+    animation-delay: var(--start-fill-delay, 0ms);
   }
 
   &__start-btn-label {

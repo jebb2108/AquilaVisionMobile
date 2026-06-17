@@ -8,6 +8,16 @@
   max-height: calc(100vh - 150px);
   overflow-y: auto;
 
+  &--empty {
+    max-width: none;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
   &__header {
     display: flex;
     align-items: center;
@@ -17,31 +27,8 @@
 
   &__title {
     font-size: $font-size-xl;
-    margin-right: auto;
+    margin: 0;
     color: $text-primary;
-  }
-
-  &__import-btn {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: transparent;
-    border: 1px solid $card-border;
-    border-radius: 8px;
-    color: $accent-blue;
-    cursor: pointer;
-
-    &:active {
-      background: rgba($accent-blue, 0.08);
-      border-color: $accent-blue;
-    }
-  }
-
-  &__file {
-    display: none;
   }
 
   &__items {
@@ -54,15 +41,12 @@
   &__item {
     position: relative;
     overflow: hidden;
-    display: grid;
-    grid-template-columns: 22px 44px minmax(0, 1fr) 36px 38px minmax(70px, auto);
-    gap: 8px;
-    align-items: center;
-    padding: 12px;
+    padding: 10px 12px;
     background: #f7f9fc;
     border-radius: 8px;
     border: 1px solid $card-border;
     color: $text-primary;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 
     &--started,
     &--deleted {
@@ -70,7 +54,7 @@
       background: #eef1f4;
     }
 
-    &--deleted::after {
+    &--deleted .patient-list__summary::after {
       content: '';
       position: absolute;
       left: 0;
@@ -88,8 +72,16 @@
     }
   }
 
+  &__summary {
+    position: relative;
+    display: grid;
+    grid-template-columns: 22px minmax(54px, 0.55fr) minmax(0, 2fr) 32px;
+    gap: 14px;
+    align-items: center;
+  }
+
   &__drag-handle {
-    width: 22px;
+    width: 18px;
     height: 30px;
     display: flex;
     flex-direction: column;
@@ -102,7 +94,7 @@
     touch-action: none;
 
     span {
-      width: 16px;
+      width: 14px;
       height: 2px;
       border-radius: 2px;
       background: currentColor;
@@ -119,17 +111,16 @@
     }
   }
 
-  &__start,
-  &__age,
-  &__eye,
-  &__type {
-    font-size: 0.82rem;
+  &__start {
+    color: $text-secondary;
+    font-size: 0.76rem;
     font-weight: 700;
     white-space: nowrap;
   }
 
   &__name {
     font-weight: 600;
+    font-size: 0.88rem;
     color: $text-primary;
     min-width: 0;
     overflow: hidden;
@@ -137,37 +128,101 @@
     white-space: nowrap;
   }
 
-  &__start {
-    color: $text-secondary;
-  }
-
-  &__age,
-  &__eye {
-    color: $text-secondary;
-    text-align: center;
-  }
-
-  &__type {
+  &__expand {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: end;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
     color: $accent-blue;
-    text-align: right;
+    cursor: pointer;
+
+    i {
+      display: inline-flex;
+      transition: transform 0.18s ease;
+    }
+
+    &[aria-expanded='true'] i {
+      transform: rotate(180deg);
+    }
+
+    &:active {
+      background: rgba($accent-blue, 0.1);
+    }
+  }
+
+  &__details {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(132px, 1fr) max-content max-content;
+    gap: 7px;
+    align-items: center;
+    padding: 8px 0 2px;
+    color: $text-secondary;
+    font-size: 0.72rem;
+    line-height: 1.25;
+    white-space: nowrap;
+
+    span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    span:nth-child(5) {
+      color: $accent-blue;
+      font-weight: 700;
+    }
   }
 
   &__item--started &__name,
   &__item--deleted &__name,
   &__item--started &__start,
   &__item--deleted &__start,
-  &__item--started &__age,
-  &__item--deleted &__age,
-  &__item--started &__eye,
-  &__item--deleted &__eye,
-  &__item--started &__type,
-  &__item--deleted &__type {
+  &__item--started &__details,
+  &__item--deleted &__details,
+  &__item--started &__expand,
+  &__item--deleted &__expand {
     color: inherit;
   }
 
-  &__empty {
-    text-align: center;
-    color: $text-muted;
-    padding: 40px;
+  &__empty-state {
+    h3 {
+      color: $text-primary;
+      font-size: $font-size-large;
+      margin-bottom: 6px;
+    }
+
+    p {
+      color: $text-secondary;
+      font-size: $font-size-regular;
+      margin: 0;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .patient-list {
+    padding: 14px;
+
+    &__summary {
+      grid-template-columns: 18px minmax(44px, 0.55fr) minmax(0, 1.8fr) 30px;
+      gap: 10px;
+    }
+
+    &__item {
+      padding: 9px 10px;
+    }
+
+    &__details {
+      grid-template-columns: max-content max-content minmax(96px, 1fr) max-content max-content;
+      gap: 3px;
+      font-size: 0.62rem;
+    }
   }
 }

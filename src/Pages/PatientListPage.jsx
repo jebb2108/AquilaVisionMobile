@@ -1,15 +1,14 @@
-// src/pages/PatientListPage.jsx
 import { useRef, useState } from 'react';
+import { calculateFullYears } from '../data/clinicPatients';
 import './PatientListPage.scss';
 
 export default function PatientListPage({
   patients,
-  onImportPatients,
   onMovePatient,
 }) {
-  const fileInputRef = useRef(null);
   const draggedId = useRef(null);
   const [draggingId, setDraggingId] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
 
   const getListOperationTitle = (patient) => {
     if (patient.type === 'frk') return 'FRK';
@@ -20,28 +19,33 @@ export default function PatientListPage({
   const getListPatientName = (patientName) => {
     const parts = String(patientName || '').trim().split(/\s+/).filter(Boolean);
 
-    if (parts.length >= 3) return parts.slice(1).join(' ');
-    if (parts.length === 2) return parts[1];
+    if (parts.length >= 3) return `${parts[0]} ${parts[1][0]}. ${parts[2][0]}.`;
+    if (parts.length === 2) return `${parts[0]} ${parts[1][0]}.`;
     return patientName;
   };
 
-  const importJson = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const getListAge = (patient) => {
+    if (patient.age !== '' && patient.age !== null && patient.age !== undefined) return patient.age;
+    const calculatedAge = calculateFullYears(patient.birthDate);
+    return calculatedAge === '' ? '-' : calculatedAge;
+  };
 
-    const reader = new FileReader();
+  const formatAge = (age) => {
+    const value = Number(age);
 
-    reader.onload = () => {
-      try {
-        onImportPatients(JSON.parse(reader.result));
-      } catch (error) {
-        console.error('Не удалось прочитать JSON', error);
-      } finally {
-        event.target.value = '';
-      }
-    };
+    if (!Number.isFinite(value)) return '-';
 
-    reader.readAsText(file);
+    const mod100 = Math.abs(value) % 100;
+    const mod10 = Math.abs(value) % 10;
+
+    if (mod100 >= 11 && mod100 <= 14) return `${value} лет`;
+    if (mod10 === 1) return `${value} год`;
+    if (mod10 >= 2 && mod10 <= 4) return `${value} года`;
+    return `${value} лет`;
+  };
+
+  const togglePatientDetails = (patientId) => {
+    setExpandedId(prev => String(prev) === String(patientId) ? null : patientId);
   };
 
   const handleDragStart = (event, patientId) => {
@@ -81,57 +85,67 @@ export default function PatientListPage({
   };
 
   return (
-    <div className="patient-list">
-      <div className="patient-list__header">
-        <h2 className="patient-list__title">Список пациентов</h2>
-        <button
-          className="patient-list__import-btn"
-          onClick={() => fileInputRef.current?.click()}
-          aria-label="Загрузить JSON"
-        >
-          <i className="fa-solid fa-upload"></i>
-        </button>
-        <input
-          ref={fileInputRef}
-          className="patient-list__file"
-          type="file"
-          accept="application/json,.json"
-          onChange={importJson}
-        />
-      </div>
+    <div className={`patient-list${patients.length === 0 ? ' patient-list--empty' : ''}`}>
       {patients.length === 0 ? (
-        <p className="patient-list__empty">Нет пациентов</p>
+        <div className="empty-state patient-list__empty-state">
+          <div className="empty-icon"><i className="fas fa-list"></i></div>
+          <h3>Нет пациентов</h3>
+          <p>Добавленные пациенты появятся здесь</p>
+        </div>
       ) : (
         <ul className="patient-list__items">
-          {patients.map(patient => (
-            <li
-              key={patient.id}
-              data-patient-id={patient.id}
-              className={[
-                'patient-list__item',
-                patient.isDeleted ? 'patient-list__item--deleted' : '',
-                patient.isStarted ? 'patient-list__item--started' : '',
-                patient.isDeleted || patient.isStarted ? 'patient-list__item--inactive' : '',
-                draggingId === patient.id ? 'patient-list__item--dragging' : '',
-              ].filter(Boolean).join(' ')}
-            >
-              <button
-                className="patient-list__drag-handle"
-                onPointerDown={(event) => handleDragStart(event, patient.id)}
-                disabled={patient.isDeleted || patient.isStarted}
-                aria-label="Переместить пациента"
+          {patients.map(patient => {
+            const isExpanded = String(expandedId) === String(patient.id);
+
+            return (
+              <li
+                key={patient.id}
+                data-patient-id={patient.id}
+                className={[
+                  'patient-list__item',
+                  patient.isDeleted ? 'patient-list__item--deleted' : '',
+                  patient.isStarted ? 'patient-list__item--started' : '',
+                  patient.isDeleted || patient.isStarted ? 'patient-list__item--inactive' : '',
+                  draggingId === patient.id ? 'patient-list__item--dragging' : '',
+                  isExpanded ? 'patient-list__item--expanded' : '',
+                ].filter(Boolean).join(' ')}
               >
-                <span></span>
-                <span></span>
-                <span></span>
-              </button>
-              <span className="patient-list__start">{patient.operationStart || '-'}</span>
-              <span className="patient-list__name">{getListPatientName(patient.patientName)}</span>
-              <span className="patient-list__age">{patient.age || '-'}</span>
-              <span className="patient-list__eye">{patient.eye}</span>
-              <span className="patient-list__type">{getListOperationTitle(patient)}</span>
-            </li>
-          ))}
+                <div className="patient-list__summary">
+                  <button
+                    className="patient-list__drag-handle"
+                    onPointerDown={(event) => handleDragStart(event, patient.id)}
+                    disabled={patient.isDeleted || patient.isStarted}
+                    aria-label="Переместить пациента"
+                  >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </button>
+                  <span className="patient-list__start">{patient.operationStart || '-'}</span>
+                  <span className="patient-list__name">{getListPatientName(patient.patientName)}</span>
+                  <button
+                    className="patient-list__expand"
+                    type="button"
+                    onClick={() => togglePatientDetails(patient.id)}
+                    aria-label={isExpanded ? 'Скрыть детали пациента' : 'Показать детали пациента'}
+                    aria-expanded={isExpanded}
+                  >
+                    <i className="fa-solid fa-chevron-down"></i>
+                  </button>
+                </div>
+
+                {isExpanded && (
+                  <div className="patient-list__details">
+                    <span>{formatAge(getListAge(patient))}</span>
+                    <span>№ {patient.cardNumber || '-'}</span>
+                    <span>{patient.phone || 'телефон не указан'}</span>
+                    <span>{patient.eye || '-'}</span>
+                    <span>{getListOperationTitle(patient)}</span>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

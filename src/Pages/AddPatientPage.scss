@@ -1,0 +1,332 @@
+.add-patient {
+  width: 100%;
+  max-width: 720px;
+  min-height: calc(100vh - 168px);
+  align-self: stretch;
+  margin: 0 auto;
+  padding: 24px 0;
+  color: $text-primary;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  &__title {
+    flex: 1;
+    margin: 0;
+    font-size: $font-size-xl;
+    line-height: 1.15;
+  }
+
+  &__reset {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid $card-border;
+    border-radius: 8px;
+    background: #fff;
+    color: $accent-blue;
+    cursor: pointer;
+
+    &:active {
+      background: rgba($accent-blue, 0.1);
+      border-color: $accent-blue;
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  &__group {
+    margin-bottom: 16px;
+
+    label,
+    .add-patient__label {
+      display: block;
+      margin-bottom: 8px;
+      color: $text-secondary;
+      font-size: $font-size-regular;
+      font-weight: 700;
+
+      i {
+        width: 18px;
+        margin-right: 6px;
+        color: $accent-blue;
+      }
+
+      span {
+        color: $text-muted;
+        font-weight: 400;
+      }
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 13px 14px;
+      border: 2px solid #d7e0ea;
+      border-radius: 8px;
+      background: #fff;
+      color: $text-primary;
+      font: inherit;
+      font-size: $font-size-regular;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $accent-blue;
+        box-shadow: 0 0 0 3px rgba($accent-blue, 0.16);
+      }
+    }
+
+    select {
+      appearance: none;
+      cursor: pointer;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    &--notes {
+      margin-bottom: 10px;
+    }
+  }
+
+  &__select {
+    position: relative;
+
+    select {
+      appearance: none;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+
+    i {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      color: $text-secondary;
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
+  }
+
+  &__cycle {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px 14px;
+    border: 2px solid #d7e0ea;
+    border-radius: 8px;
+    background: #fff;
+    color: $accent-blue;
+    font: inherit;
+    font-size: $font-size-regular;
+    font-weight: 800;
+    text-align: left;
+    cursor: pointer;
+
+    span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    i {
+      flex-shrink: 0;
+      color: $text-secondary;
+    }
+
+    &:active {
+      border-color: $accent-blue;
+      box-shadow: 0 0 0 3px rgba($accent-blue, 0.12);
+    }
+  }
+
+  &__chips {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 2px 0 16px;
+  }
+
+  &__gender-options {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__gender-option {
+    position: relative;
+    min-height: 26px;
+    padding: 0 0 4px;
+    border: none;
+    background: transparent;
+    color: $text-secondary;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.16s ease, font-size 0.16s ease;
+
+    span {
+      color: inherit;
+      font-weight: inherit;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1.5px;
+      border-radius: 999px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.16s ease;
+    }
+
+    &:active {
+      color: $accent-blue;
+    }
+
+    &--active {
+      color: $text-primary;
+      font-size: 0.96rem;
+      font-weight: 800;
+
+      &::after {
+        transform: scaleX(1);
+      }
+    }
+  }
+
+  &__chip {
+    min-height: 42px;
+    border: 1px solid $card-border;
+    border-radius: 8px;
+    background: #f7f9fc;
+    color: $text-secondary;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &--active {
+      border-color: $accent-blue;
+      background: rgba($accent-blue, 0.1);
+      color: $accent-blue;
+    }
+  }
+
+  &__params {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  &__param {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid $card-border;
+    border-radius: 8px;
+    background: #f7f9fc;
+
+    span {
+      color: $text-secondary;
+      font-size: $font-size-label;
+      font-weight: 700;
+    }
+
+    button {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      color: $accent-blue;
+      font: inherit;
+      font-weight: 700;
+      padding: 8px 0;
+      cursor: pointer;
+
+      &:active {
+        color: #234d72;
+      }
+    }
+  }
+
+  &__error {
+    margin: 8px 0 12px;
+    color: $accent-red;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  &__actions {
+    padding-bottom: 6px;
+  }
+
+  &__submit {
+    width: 100%;
+    min-height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    border-radius: 8px;
+    background: $accent-blue;
+    color: #fff;
+    font: inherit;
+    font-size: $font-size-large;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:active {
+      background: #234d72;
+      transform: scale(0.99);
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .add-patient {
+    min-height: calc(100vh - 148px);
+    padding: 12px 0 20px;
+
+    &__title {
+      font-size: 1.45rem;
+    }
+  }
+}

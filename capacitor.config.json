@@ -1,0 +1,12 @@
+{
+  "appId": "com.aquilavision.queue",
+  "appName": "Aquila Vision",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}
