@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { calculateFullYears } from '../data/clinicPatients';
+import { AppIcon } from '../components/Icon/Icon';
 import './PatientListPage.scss';
 
 export default function PatientListPage({
@@ -88,7 +89,7 @@ export default function PatientListPage({
     <div className={`patient-list${patients.length === 0 ? ' patient-list--empty' : ''}`}>
       {patients.length === 0 ? (
         <div className="empty-state patient-list__empty-state">
-          <div className="empty-icon"><i className="fas fa-list"></i></div>
+          <div className="empty-icon"><AppIcon name="list" /></div>
           <h3>Нет пациентов</h3>
           <p>Добавленные пациенты появятся здесь</p>
         </div>
@@ -130,7 +131,7 @@ export default function PatientListPage({
                     aria-label={isExpanded ? 'Скрыть детали пациента' : 'Показать детали пациента'}
                     aria-expanded={isExpanded}
                   >
-                    <i className="fa-solid fa-chevron-down"></i>
+                    <AppIcon name="chevronDown" />
                   </button>
                 </div>
 

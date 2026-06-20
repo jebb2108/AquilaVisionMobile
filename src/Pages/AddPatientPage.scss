@@ -47,6 +47,7 @@
   }
 
   &__group {
+    min-width: 0;
     margin-bottom: 16px;
 
     label,
@@ -57,12 +58,6 @@
       font-size: $font-size-regular;
       font-weight: 700;
 
-      i {
-        width: 18px;
-        margin-right: 6px;
-        color: $accent-blue;
-      }
-
       span {
         color: $text-muted;
         font-weight: 400;
@@ -72,7 +67,10 @@
     input,
     select,
     textarea {
+      display: block;
       width: 100%;
+      max-width: 100%;
+      min-width: 0;
       min-height: 48px;
       padding: 13px 14px;
       border: 2px solid #d7e0ea;
@@ -105,6 +103,56 @@
     }
   }
 
+  &__time {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 5px;
+    padding: 5px 8px;
+    border: 2px solid #d7e0ea;
+    border-radius: 8px;
+    background: #fff;
+    color: $text-primary;
+
+    &:focus-within {
+      border-color: $accent-blue;
+      box-shadow: 0 0 0 3px rgba($accent-blue, 0.16);
+    }
+
+    ion-icon {
+      color: $accent-blue;
+      font-size: 1rem;
+    }
+
+    select {
+      width: 100%;
+      min-width: 0;
+      min-height: 34px;
+      padding: 4px 2px;
+      border: 0;
+      background: transparent;
+      color: $text-primary;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-align: center;
+      text-align-last: center;
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+
+    span {
+      color: $text-secondary;
+      font-weight: 800;
+    }
+  }
+
   &__select {
     position: relative;
 
@@ -114,7 +162,7 @@
       cursor: pointer;
     }
 
-    i {
+    ion-icon {
       position: absolute;
       top: 50%;
       right: 14px;
@@ -149,7 +197,7 @@
       white-space: nowrap;
     }
 
-    i {
+    ion-icon {
       flex-shrink: 0;
       color: $text-secondary;
     }

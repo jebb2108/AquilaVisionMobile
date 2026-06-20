@@ -1,6 +1,7 @@
 import { createCanonicalPatient, readCanonicalPatients } from '../data/clinicPatients';
 
-export const PATIENTS_API_URL = import.meta.env.VITE_PATIENTS_API_URL || '/api/patients';
+export const PATIENTS_API_URL =
+  import.meta.env.VITE_PATIENTS_API_URL || 'https://medaquilavision.ru/api/patients';
 export const PATIENTS_API_RETRY_COUNT = 5;
 export const PATIENTS_API_RETRY_DELAY = 300;
 export const OPERATION_DURATION_MS = 60 * 1000;

@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core';
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { calculateFullYears } from '../../data/clinicPatients';
 
 const DEFAULT_SURGEON_NAME = 'Еруков В.М';
@@ -40,11 +43,12 @@ export const buildOperationDayRows = (day) => {
   return [headers, ...rows];
 };
 
-export const downloadOperationDay = (day) => {
+const buildOperationDayDocument = (day) => {
   const tableRows = buildOperationDayRows(day)
     .map(row => `<tr>${row.map(cell => `<td>${escapeCell(cell)}</td>`).join('')}</tr>`)
     .join('');
-  const documentHtml = `
+
+  return `
     <html>
       <head>
         <meta charset="UTF-8" />
@@ -54,6 +58,9 @@ export const downloadOperationDay = (day) => {
       </body>
     </html>
   `;
+};
+
+const downloadInBrowser = (documentHtml, fileName) => {
   const blob = new Blob([documentHtml], {
     type: 'application/vnd.ms-excel;charset=utf-8;',
   });
@@ -61,9 +68,37 @@ export const downloadOperationDay = (day) => {
   const link = document.createElement('a');
 
   link.href = url;
-  link.download = `aquila-vision-${day.date}.xls`;
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+};
+
+const shareOnDevice = async (documentHtml, fileName) => {
+  const file = await Filesystem.writeFile({
+    path: fileName,
+    data: documentHtml,
+    directory: Directory.Cache,
+    encoding: Encoding.UTF8,
+    recursive: true,
+  });
+
+  await Share.share({
+    title: `Операционный день ${fileName}`,
+    dialogTitle: 'Сохранить историю операций',
+    files: [file.uri],
+  });
+};
+
+export const downloadOperationDay = async (day) => {
+  const fileName = `aquila-vision-${day.date}.xls`;
+  const documentHtml = buildOperationDayDocument(day);
+
+  if (Capacitor.isNativePlatform()) {
+    await shareOnDevice(documentHtml, fileName);
+    return;
+  }
+
+  downloadInBrowser(documentHtml, fileName);
 };

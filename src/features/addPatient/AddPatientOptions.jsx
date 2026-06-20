@@ -1,3 +1,8 @@
+import { AppIcon } from '../../components/Icon/Icon';
+
+const HOURS = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, '0'));
+const MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, '0'));
+
 export function GenderOptions({ genders, selectedGender, onSelect }) {
   return (
     <div className="add-patient__gender-options" aria-label="Пол пациента">
@@ -44,8 +49,44 @@ export function CycleButton({ children, id, onClick }) {
       onClick={onClick}
     >
       <span>{children}</span>
-      <i className="fa-solid fa-chevron-right"></i>
+      <AppIcon name="chevronForward" />
     </button>
+  );
+}
+
+export function TimeSelect({ id, value, onChange }) {
+  const [hours = '', minutes = ''] = String(value || '').split(':');
+
+  const updateTime = (nextHours, nextMinutes) => {
+    if (!nextHours && !nextMinutes) {
+      onChange('');
+      return;
+    }
+
+    onChange(`${nextHours || '00'}:${nextMinutes || '00'}`);
+  };
+
+  return (
+    <div className="add-patient__time" id={id}>
+      <AppIcon name="time" />
+      <select
+        aria-label="Часы начала операции"
+        value={hours}
+        onChange={(event) => updateTime(event.target.value, minutes)}
+      >
+        <option value="">чч</option>
+        {HOURS.map(hour => <option key={hour} value={hour}>{hour}</option>)}
+      </select>
+      <span aria-hidden="true">:</span>
+      <select
+        aria-label="Минуты начала операции"
+        value={minutes}
+        onChange={(event) => updateTime(hours, event.target.value)}
+      >
+        <option value="">мм</option>
+        {MINUTES.map(minute => <option key={minute} value={minute}>{minute}</option>)}
+      </select>
+    </div>
   );
 }
 
@@ -56,14 +97,14 @@ export function FemtoParams({ flapThickness, ringDiameter, onCycleFlap, onCycleR
         <span>Толщина лоскута</span>
         <button type="button" onClick={onCycleFlap}>
           {flapThickness} мкм
-          <i className="fa-solid fa-chevron-right"></i>
+          <AppIcon name="chevronForward" />
         </button>
       </div>
       <div className="add-patient__param">
         <span>Диаметр кольца</span>
         <button type="button" onClick={onCycleRing}>
           {Number(ringDiameter).toFixed(1)} мм
-          <i className="fa-solid fa-chevron-right"></i>
+          <AppIcon name="chevronForward" />
         </button>
       </div>
     </div>

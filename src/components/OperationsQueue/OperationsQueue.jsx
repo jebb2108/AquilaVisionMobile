@@ -10,6 +10,7 @@ import {
   FLAP_THICKNESS_VALUES,
   RING_DIAMETER_VALUES,
 } from '../../features/operationsQueue/operationValues';
+import { AppIcon } from '../Icon/Icon';
 import './OperationsQueue.scss';
 
 const DRAFT_VALUE_SETS = {
@@ -217,7 +218,7 @@ export default function OperationsQueue({
   if (operations.length === 0) {
     return (
       <div className="empty-state">
-        <div className="empty-icon"><i className="fas fa-procedures"></i></div>
+        <div className="empty-icon"><AppIcon name="medical" /></div>
         <h3>Нет операций</h3>
         <p>Добавьте первую операцию</p>
       </div>
@@ -232,7 +233,7 @@ export default function OperationsQueue({
         onClick={() => setIsFullscreen(prev => !prev)}
         aria-label={isFullscreen ? 'Вернуть шапку и меню' : 'Расширить карточку'}
       >
-        <i className={`fa-solid ${isFullscreen ? 'fa-compress' : 'fa-expand'}`}></i>
+        <AppIcon name={isFullscreen ? 'contract' : 'expand'} />
       </button>
 
       <OperationCard

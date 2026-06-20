@@ -58,6 +58,11 @@
     cursor: pointer;
     transition: background 0.2s;
 
+    &:disabled {
+      cursor: wait;
+      opacity: 0.55;
+    }
+
     &:hover {
       background: rgba($accent-blue, 0.1);
     }

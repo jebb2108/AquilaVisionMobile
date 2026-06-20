@@ -9,8 +9,10 @@ import {
   EyeChips,
   FemtoParams,
   GenderOptions,
+  TimeSelect,
 } from '../features/addPatient/AddPatientOptions';
 import { useAddPatientForm } from '../features/addPatient/useAddPatientForm';
+import { AppIcon } from '../components/Icon/Icon';
 import './AddPatientPage.scss';
 
 const FEMTO_FLAP_VALUES = [90, 100, 110, 120, 130];
@@ -36,7 +38,7 @@ export default function AddPatientPage({ onAddPatient }) {
 
   return (
     <form className="add-patient" onSubmit={submitPatient}>
-      <AddPatientField htmlFor="patientName" icon="fa-user" label="ФИО пациента">
+      <AddPatientField htmlFor="patientName" label="ФИО пациента">
         <input
           id="patientName"
           value={form.patientName}
@@ -47,7 +49,7 @@ export default function AddPatientPage({ onAddPatient }) {
       </AddPatientField>
 
       <AddPatientRow>
-        <AddPatientField htmlFor="birthDate" icon="fa-cake-candles" label="Дата рождения">
+        <AddPatientField htmlFor="birthDate" label="Дата рождения">
           <input
             id="birthDate"
             inputMode="numeric"
@@ -59,7 +61,6 @@ export default function AddPatientPage({ onAddPatient }) {
 
         <AddPatientField
           className="add-patient__group--gender"
-          icon="fa-venus-mars"
           label="Пол"
         >
           <GenderOptions
@@ -71,7 +72,7 @@ export default function AddPatientPage({ onAddPatient }) {
       </AddPatientRow>
 
       <AddPatientRow>
-        <AddPatientField htmlFor="phone" icon="fa-phone" label="Телефон">
+        <AddPatientField htmlFor="phone" label="Телефон">
           <input
             ref={phoneInputRef}
             id="phone"
@@ -85,7 +86,7 @@ export default function AddPatientPage({ onAddPatient }) {
           />
         </AddPatientField>
 
-        <AddPatientField htmlFor="cardNumber" icon="fa-address-card" label="№ Карты">
+        <AddPatientField htmlFor="cardNumber" label="№ Карты">
           <input
             id="cardNumber"
             value={form.cardNumber}
@@ -97,7 +98,7 @@ export default function AddPatientPage({ onAddPatient }) {
       </AddPatientRow>
 
       <AddPatientRow>
-        <AddPatientField htmlFor="operationType" icon="fa-tag" label="Операция">
+        <AddPatientField htmlFor="operationType" label="Операция">
           <CycleButton
             id="operationType"
             onClick={() => cycleValue('type', OPERATION_TYPE_VALUES)}
@@ -106,14 +107,11 @@ export default function AddPatientPage({ onAddPatient }) {
           </CycleButton>
         </AddPatientField>
 
-        <AddPatientField htmlFor="operationStart" icon="fa-clock" label="Время">
-          <input
-            type="time"
+        <AddPatientField label="Время">
+          <TimeSelect
             id="operationStart"
-            lang="ru-RU"
-            step="300"
             value={form.operationStart}
-            onChange={(event) => updateField('operationStart', event.target.value)}
+            onChange={(value) => updateField('operationStart', value)}
           />
         </AddPatientField>
       </AddPatientRow>
@@ -132,7 +130,7 @@ export default function AddPatientPage({ onAddPatient }) {
           onCycleRing={() => cycleValue('ringDiameter', FEMTO_RING_VALUES)}
         />
       ) : !isFrk && (
-        <AddPatientField htmlFor="operationCount" icon="fa-layer-group" label="Количество операций">
+        <AddPatientField htmlFor="operationCount" label="Количество операций">
           <input
             id="operationCount"
             inputMode="numeric"
@@ -145,7 +143,6 @@ export default function AddPatientPage({ onAddPatient }) {
       <AddPatientField
         className="add-patient__group--notes"
         htmlFor="specialNotes"
-        icon="fa-comment-medical"
         label="Особенности операции"
         optionalText=" (необязательно)"
       >
@@ -162,7 +159,7 @@ export default function AddPatientPage({ onAddPatient }) {
 
       <div className="add-patient__actions">
         <button className="add-patient__submit" type="submit">
-          <i className="fa-solid fa-plus"></i>
+          <AppIcon name="add" />
           Добавить в очередь
         </button>
       </div>

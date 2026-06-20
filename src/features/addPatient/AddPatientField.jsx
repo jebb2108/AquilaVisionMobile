@@ -2,7 +2,6 @@ export function AddPatientField({
   children,
   className = '',
   htmlFor,
-  icon,
   label,
   optionalText = '',
 }) {
@@ -10,13 +9,11 @@ export function AddPatientField({
     <div className={`add-patient__group${className ? ` ${className}` : ''}`}>
       {htmlFor ? (
         <label htmlFor={htmlFor}>
-          <i className={`fa-solid ${icon}`}></i>
           {label}
           {optionalText && <span>{optionalText}</span>}
         </label>
       ) : (
         <span className="add-patient__label">
-          <i className={`fa-solid ${icon}`}></i>
           {label}
         </span>
       )}

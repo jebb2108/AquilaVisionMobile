@@ -15,20 +15,18 @@ export default function Layout() {
   const title = PAGE_TITLES[pathname] || 'Aquila Vision';
 
   return (
-    <IonPage>
-      <div className="app-layout">
-        <header className="app-header">
-          <h1 className="app-header__title">{title}</h1>
-        </header>
+    <IonPage className="app-layout">
+      <header className="app-header">
+        <h1 className="app-header__title">{title}</h1>
+      </header>
 
-        <IonContent className="app-layout__scroll">
-          <main className="app-layout__content">
-            <Outlet />
-          </main>
-        </IonContent>
+      <IonContent className="app-layout__scroll">
+        <main className="app-layout__content">
+          <Outlet />
+        </main>
+      </IonContent>
 
-        <BottomNav />
-      </div>
+      <BottomNav />
     </IonPage>
   );
 }

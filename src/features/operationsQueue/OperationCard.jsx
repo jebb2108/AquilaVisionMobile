@@ -1,3 +1,5 @@
+import { AppIcon } from '../../components/Icon/Icon';
+
 export function OperationCard({
   children,
   currentIndex,
@@ -47,18 +49,21 @@ export function OperationCard({
                 onClick={() => onCycleDraftValue('eye')}
                 aria-label="Следующий глаз"
               >
-                <i className="fa-solid fa-chevron-right"></i>
+                <AppIcon name="chevronForward" />
               </button>
             </div>
           ) : (
             <span className="word-card__eye-badge">{op.eye}</span>
           )}
-          <div className="word-card__details">
+          <div className={`word-card__details${isCardEditMode ? ' word-card__details--editing' : ''}`}>
             <div className="word-card__detail-row">
-              <span className="word-card__detail-label">Дата рождения:</span>
+              {!isCardEditMode && (
+                <span className="word-card__detail-label">Дата рождения:</span>
+              )}
               {isCardEditMode ? (
                 <input
                   className="word-card__input"
+                  aria-label="Дата рождения"
                   value={draft.birthDate}
                   onChange={(event) => onUpdateDraft('birthDate', event.target.value)}
                 />
@@ -67,10 +72,13 @@ export function OperationCard({
               )}
             </div>
             <div className="word-card__detail-row">
-              <span className="word-card__detail-label">Телефон:</span>
+              {!isCardEditMode && (
+                <span className="word-card__detail-label">Тел:</span>
+              )}
               {isCardEditMode ? (
                 <input
                   className="word-card__input"
+                  aria-label="Телефон"
                   value={draft.phone}
                   onChange={(event) => onUpdateDraft('phone', event.target.value)}
                 />
@@ -131,7 +139,7 @@ export function OperationCard({
               onClick={onPrevOperation}
               disabled={currentIndex === 0}
             >
-              <i className="fa-solid fa-angle-left"></i>
+              <AppIcon name="chevronBack" />
             </button>
             <button
               className={[
@@ -158,7 +166,7 @@ export function OperationCard({
               onClick={onNextOperation}
               disabled={currentIndex >= operationsLength - 1}
             >
-              <i className="fa-solid fa-angle-right"></i>
+              <AppIcon name="chevronForward" />
             </button>
           </div>
         </div>
@@ -191,7 +199,7 @@ function FemtoOperationParams({
               onClick={() => onCycleDraftValue('flapThickness')}
               aria-label="Следующая толщина лоскута"
             >
-              <i className="fa-solid fa-chevron-right"></i>
+              <AppIcon name="chevronForward" />
             </button>
           </div>
         ) : (
@@ -212,7 +220,7 @@ function FemtoOperationParams({
               onClick={() => onCycleDraftValue('ringDiameter')}
               aria-label="Следующий диаметр кольца"
             >
-              <i className="fa-solid fa-chevron-right"></i>
+              <AppIcon name="chevronForward" />
             </button>
           </div>
         ) : (

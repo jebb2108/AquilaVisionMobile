@@ -142,12 +142,12 @@
     color: $accent-blue;
     cursor: pointer;
 
-    i {
+    ion-icon {
       display: inline-flex;
       transition: transform 0.18s ease;
     }
 
-    &[aria-expanded='true'] i {
+    &[aria-expanded='true'] ion-icon {
       transform: rotate(180deg);
     }
 

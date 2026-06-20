@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { downloadOperationDay } from '../features/history/operationDayExport';
+import { AppIcon } from '../components/Icon/Icon';
 import './HistoryPage.scss';
 
 function EmptyHistory() {
   return (
     <div className="empty-state history-days__empty-state">
-      <div className="empty-icon"><i className="fas fa-clock"></i></div>
+      <div className="empty-icon"><AppIcon name="time" /></div>
       <h3>Нет истории</h3>
       <p>
         Завершённые операционные дни
@@ -16,6 +18,23 @@ function EmptyHistory() {
 }
 
 function HistoryDayItem({ day }) {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const exportDay = async () => {
+    if (isExporting) return;
+
+    setIsExporting(true);
+
+    try {
+      await downloadOperationDay(day);
+    } catch (error) {
+      console.error('Не удалось сохранить историю операций', error);
+      window.alert('Не удалось сохранить историю операций');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <li className="history-days__item">
       <span className="history-days__date">{day.date}</span>
@@ -25,10 +44,11 @@ function HistoryDayItem({ day }) {
       <button
         className="history-days__download-btn"
         type="button"
-        onClick={() => downloadOperationDay(day)}
+        onClick={exportDay}
+        disabled={isExporting}
         aria-label={`Скачать историю за ${day.date}`}
       >
-        <i className="fa-solid fa-download"></i>
+        <AppIcon name="download" />
       </button>
     </li>
   );
